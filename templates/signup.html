@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Signup | HR Dashboard</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <!-- Font Awesome Cdn Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+</head>
+<style>body {
+	background: #f6f5f7;
+  background-image: url('https://media.istockphoto.com/id/517279258/photo/office-desk-with-laptop-coffee-notepad-and-plant.jpg?s=612x612&w=0&k=20&c=uxOkcpp07HHhhhvh5jRlHegYxq50sEQK9I-vFlwN-0A='); /* Replace 'path/to/your/image.jpg' with the actual path to your image */
+      background-size: cover; /* Ensures the image covers the entire background */
+      background-position: center; /* Centers the image */
+      background-repeat: no-repeat; /* Prevents the image from repeating */
+      height: 100vh; /* Ensures the background takes up the full height of the viewport */
+      margin: 0; /* Removes default margin */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #161515; /* Set text color to contrast with the background */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	flex-direction: column;
+	font-family: 'Montserrat', sans-serif;
+	height: 100vh;
+	margin: -20px 0 50px;
+}
+.container {
+    background-color: rgba(255, 255, 255, 0.8);
+    border-radius: 10px;
+    box-shadow: 0 14px 28px rgba(0, 0, 0, 0.25), 
+                0 10px 10px rgba(0, 0, 0, 0.22);
+    position: relative;
+    overflow: hidden;
+    width: 400px;
+    max-width: 100%;
+    min-height: 480px;
+    text-align: center;
+    padding: 20px;
+    height: 80vh; /* Adjust the height to 80% of the viewport height */
+    display: flex;
+    justify-content: center;
+    align-items: center; /* Center the form vertically */
+}
+
+h1 {
+    color: #2b72ff; /* Set title color to match the button color */
+    margin-bottom: 20px; /* Add space below the title */
+}
+
+form {
+    background-color: rgba(255, 255, 255, 0.9); /* Slightly more opaque white background for the form */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    padding: 20px;
+    height: 100%;
+    text-align: center;
+    width: 100%; }
+	label {
+    font-size: larger;
+    margin-bottom: 8px; /* Add space below labels for better readability */
+}
+
+input {
+    padding: 10px;
+    margin-bottom: 16px; /* Add space below input fields */
+    width: 100%; /* Take up the full width of the container */
+}
+
+button {
+    border-radius: 20px;
+    border: 1px solid #2b72ff;
+    background-color: #2b72ff;
+    color: #FFFFFF;
+    font-size: 16px; /* Increase font size for better visibility */
+    font-weight: bold;
+    padding: 12px 45px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transition: transform 80ms ease-in;
+    cursor: pointer; /* Add a pointer cursor on hover */
+}
+
+button:active {
+    transform: scale(0.95);
+}
+
+button:focus {
+    outline: none;
+}
+
+button.ghost {
+    background-color: transparent;
+    border-color: #FFFFFF;
+}
+
+p {
+    font-size: 16px; /* Increase font size for better readability */
+    font-weight: 300; /* Slightly increase font weight for better contrast */
+    line-height: 24px; /* Increase line height for better spacing */
+    margin: 20px 0; /* Add space above and below the paragraph */
+    color: #2b72ff; /* Set text color to match the button color */
+}
+
+a {
+    font-size: 16px; /* Increase font size for better readability */
+    text-decoration: none;
+    margin: 15px 0;
+    color: #2b72ff; /* Set link color to match the button color */
+}
+
+a:hover {
+    text-decoration: underline; /* Underline the link on hover for visual feedback */
+}
+</style>
+<body>
+    <div class="container">
+        <div class="signup-container">
+            <h1>Signup</h1>
+            <form class="form-container" action="/signup" method="post">
+                <label for="username">Username:</label>
+                <input type="text" id="username" name="username" required>
+                <br>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password" required>
+                <br>
+                <label for="confirm_password">Confirm Password:</label>
+                <input type="password" id="confirm_password" name="confirm_password" required>
+                <br>
+                <button type="submit">Signup</button>
+                <br>
+            </form>
+            <p>Already have an account? <a href="/">Login</a></p>
+        </div>
+    </div>
+</body>
+</html>

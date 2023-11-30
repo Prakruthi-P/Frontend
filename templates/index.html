@@ -1,0 +1,294 @@
+<span style="font-family: verdana, geneva, sans-serif;"><!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <title>HR Dashboard | By Code Info</title>
+    <link rel="stylesheet" href="/static/style.css" />
+    <!-- Font Awesome Cdn Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+  </head>
+  <body>
+    <div class="container">
+      <nav>
+        <div class="navbar">
+          <div class="logo">
+            <h1>ResumeTAG</h1>
+          </div>
+          <ul>
+            <li><a href="#">
+              <i class="fas fa-user"></i>
+              <span class="nav-item">Dashboard</span>
+            </a>
+            </li>
+            <li><a href="{{ url_for('interviews') }}">
+              <i class="fas fa-chart-bar"></i>
+              <span class="nav-item">Interviews</span>
+          </a></li>
+            </li>
+            <li><a href="{{ url_for('selected_candidates') }}">
+              <i class="fab fa-dochub"></i>
+              <span class="nav-item">Selected</span>
+          </a></li>
+            <li><a href="#">
+              <i class="fas fa-cog"></i>
+              <span class="nav-item">Settings</span>
+            </a>
+            </li>
+            <li><a href="#">
+              <i class="fas fa-question-circle"></i>
+              <span class="nav-item">Help</span>
+            </a>
+            </li>
+            <li><a href="#" class="logout">
+              <i class="fas fa-sign-out-alt"></i>
+              <span class="nav-item">Logout</span>
+            </a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+  
+      <section class="main">
+        <div class="main-top">
+          <p>Welcome To ResumeTAG!</p>
+        </div>
+        <div class="main-body">
+          <h1>Recent Applicants</h1>
+
+
+          <metacharset="UTF-8">              
+          <meta           
+          name="viewport"
+           
+          content="width=device-width, initial-scale=1.0">
+          
+              
+          
+              <style>
+                  /* Style the select element */
+                  select {
+                      width: 200px;
+                      padding: 5px;
+                      border: 1px solid #ccc;
+                      border-radius: 4px;
+                  }
+          
+                  /* Style the options within the select element */
+                  option {
+                      padding: 5px;
+                  }
+                  .search-bar {
+                    display: flex;
+                    align-items: center;
+                    width: 1000px;
+                    margin: 0 auto;
+                    padding: 10px;
+                    border: 1px solid #ccc;
+                    border-radius: 5px;
+                    }
+
+        .search-form {
+            flex: 1;
+            margin-right: 10px;
+            position:relative;
+            width: 600px;
+        }
+
+        form {
+            display: flex;
+            align-items: center;
+        }
+
+        input[type="search"] {
+            width: 900px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        input[type="submit"] {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .button-container {
+            display: flex;
+            position: absolute;
+            transform: translateY(-50%);
+            left: 340px;
+            top: 262px
+        }
+
+        .small-button {
+            margin-right: 5px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+              </style>
+          </head>
+          <body>
+            <label for="Candidate">Select an action:</label>
+            <button id="CandidateButton" onclick="openNewPage('/addcandidate')">Add Candidate</button>
+
+                  
+              </select>
+              <script>
+                function openNewPage(page) {
+        // Perform the action when the button is clicked
+        window.location.href = page;
+     }
+
+            </script>
+          
+          
+          
+    
+          <div class="search-bar">
+            <div class="search-form">
+                <form id="searchForm" action="/index" method="get">
+                    <input type="search" name="search" id="searchInput" placeholder="Search candidate here...">
+                    <input type="submit" value="Search"> 
+                </form>  
+            </div>
+            <div class="button-container">
+              <label>Keys:</label>
+                <button type="button" class="key-btn" data-key="education">Education</button>
+                <button type="button" class="key-btn" data-key="location">Location</button>
+                <button type="button" class="key-btn" data-key="skills">Skills</button>
+                <button type="button" class="key-btn" data-key="certification">Certification</button>
+                <button type="button" class="key-btn" data-key="contact">Contact</button>
+
+                <label>Operators:</label>
+                <button type="button" class="operator-btn" data-operator="and">AND</button>
+                <button type="button" class="operator-btn" data-operator="or">OR</button>
+                <button type="button" class="operator-btn" data-operator="not">NOT</button> </div>
+         </div>
+        
+        <table>
+          <thead>
+              <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Action</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for candidate in candidates %}
+                  <tr>
+                      <td>
+                          <a href="{{ url_for('candidate_details', candidate_id=candidate['_id']) }}">
+                              {{ candidate['name'] }}
+                          </a>
+                      </td>
+                      <td>{{ candidate['email'] }}</td>
+                      <td>
+                          <button class="view-btn" data-candidate-id="{{ candidate['_id'] }}">View</button>
+                          <form style="display:inline;" action="/select-candidate/{{ candidate['_id'] }}" method="post">
+                              <button type="submit" class="select" data-candidate-id="{{ candidate['_id'] }}">
+                                  {% if candidate['selected'] %}
+                                      Selected
+                                  {% else %}
+                                      Select
+                                  {% endif %}
+                              </button>
+                          </form>
+                          <form style="display:inline;" action="/delete-candidate/{{ candidate['_id'] }}" method="post">
+                              <button type="submit" class="delete-button">Delete</button>
+                          </form>
+                      </td>
+                  </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+      
+      <!-- Add this script to handle the click event on the View button -->
+      <!-- Add this script to handle the click event on the View button -->
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+      var viewButtons = document.querySelectorAll(".view-btn");
+
+      viewButtons.forEach(function (button) {
+          button.addEventListener("click", function () {
+              var candidateId = this.getAttribute("data-candidate-id");
+              window.location.href = "/candidate/" + candidateId;
+          });
+      });
+  });
+</script>
+
+      
+      
+      </section>
+    </div>
+
+    <script>
+      // Add an event listener to the search form
+      document.getElementById('searchForm').addEventListener('submit', function(event) {
+          // Prevent the default form submission
+          event.preventDefault();
+          // Redirect to the list of all candidates when the search form is submitted
+          window.location.href = "{{ url_for('index') }}?search=" + encodeURIComponent(document.getElementsByName('search')[0].value);
+      });
+      function selectCandidate(candidateId) {
+        // Make an AJAX request to the server to select the candidate
+        fetch(`/select-candidate/${candidateId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // Display the result message on the page
+            const messageElement = document.getElementById('select-message');
+            if (data.success) {
+                messageElement.innerText = 'Candidate selected successfully';
+                messageElement.style.color = 'green';
+            } else {
+                messageElement.innerText = data.message || data.error || 'Error selecting candidate';
+                messageElement.style.color = 'red';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+    
+      function deleteCandidate(candidateId) {
+        // Make an AJAX request to the server to delete the candidate
+        fetch(`/delete-candidate/${candidateId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log(data);
+            // Display the result message on the page
+            const messageElement = document.getElementById('delete-message');
+            if (data.success) {
+                messageElement.innerText = 'Candidate deleted successfully';
+                messageElement.style.color = 'green';
+            } else {
+                messageElement.innerText = data.message || data.error || 'Error deleting candidate';
+                messageElement.style.color = 'red';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+  </script>
+  
+  </body>
+  </html>
+</span>

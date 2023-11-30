@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selected Candidates</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h2 {
+            text-align: left;
+            color: #333;
+        }
+
+        .candidate-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .candidate-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .candidate-actions {
+            display: flex;
+        }
+
+        button {
+            cursor: pointer;
+            padding: 8px;
+            border: none;
+            border-radius: 4px;
+        }
+
+        .view-btn {
+            background-color: #3498db;
+            color: #fff;
+        }
+
+        .delete-btn {
+            background-color: #e74c3c;
+            color: #fff;
+        }
+
+        .schedule-interview-btn {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+
+        .modal {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1;
+}
+
+.modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+
+        .close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-bottom: 8px;
+        }
+
+        input {
+            margin-bottom: 16px;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+
+        button[type="submit"] {
+            background-color: #2ecc71;
+            color: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Selected Candidates</h2>
+
+        <ul class="candidate-list">
+            <!-- Your candidate items here -->{% for candidate in selected_candidates %}
+                <li class="candidate-item" id="candidate-{{ candidate['_id'] }}">
+                    <span>{{ candidate['name'] }}</span>
+                    <div class="candidate-actions">
+                        <button class="view-btn" data-candidate-id="{{ candidate['_id'] }}">View</button>
+                        <button class="delete-btn" data-candidate-id="{{ candidate['_id'] }}">Delete</button>
+                        <button class="schedule-interview-btn" data-candidate-id="{{ candidate['_id'] }}">Schedule Interview</button>
+                        {% if candidate['scheduled_interview'] %}
+                        Scheduled: {{ candidate['scheduled_interview']['date'] }} {{ candidate['scheduled_interview']['time'] }}
+                    {% else %}
+                        Schedule Interview
+                    {% endif %}
+                    </div>
+                    <div id="scheduleInterviewModal" class="modal">
+                        <div class="modal-content">
+                            <span class="close" onclick="closeModal()">&times;</span>
+                            <h3>Schedule Interview</h3>
+                            <form id="scheduleInterviewForm">
+                                <label for="interviewDate">Interview Date:</label>
+                                <input type="date" id="interviewDate" name="interviewDate" required>
+                                <label for="interviewTime">Interview Time:</label>
+                                <input type="time" id="interviewTime" name="interviewTime" required>
+                                <button type="submit">Schedule</button>
+                            </form>
+                        </div>
+                    </div>
+                </li>
+            {% endfor %}
+        
+        </ul>
+    </div>
+
+    <script>
+        // Your JavaScript code here
+        document.addEventListener('DOMContentLoaded', function () {
+    const viewButtons = document.querySelectorAll('.view-btn');
+    const deleteButtons = document.querySelectorAll('.delete-btn');
+    const interviewButtons = document.querySelectorAll('.schedule-interview-btn');
+
+    viewButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const candidateId = this.getAttribute('data-candidate-id');
+            viewCandidate(candidateId);
+        });
+    });
+
+    deleteButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const candidateId = this.getAttribute('data-candidate-id');
+            deleteCandidate(candidateId);
+        });
+    });
+
+    interviewButtons.forEach(button => {
+        button.addEventListener('click', function () {
+            const candidateId = this.getAttribute('data-candidate-id');
+            if (this.innerText.includes('Scheduled')) {
+                showScheduledInfo(candidateId);
+            } else {
+                scheduleInterview(candidateId);
+            }
+        });
+    });
+
+
+    const closeButtons = document.querySelectorAll('.close');
+    closeButtons.forEach(button => {
+        button.addEventListener('click', closeModal);
+    });
+});
+
+
+        function viewCandidate(candidateId) {
+            window.location.href = '/candidate/' + candidateId;
+        }
+
+        function deleteCandidate(candidateId) {
+            const candidateElement = document.getElementById(`candidate-${candidateId}`);
+            if (candidateElement) {
+                candidateElement.remove();
+                const indexPageButton = document.querySelector(`.select[data-candidate-id="${candidateId}"]`);
+                if (indexPageButton) {
+                    const buttonText = indexPageButton.querySelector('.button-text');
+                    if (buttonText) {
+                        buttonText.innerText = 'Select';
+                    }
+                }
+
+                fetch(`/deselect-candidate/${candidateId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to update server');
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Server response:', data);
+                })
+                .catch(error => {
+                    console.error('Error updating server:', error);
+                });
+            } else {
+                console.log('Candidate element not found');
+            }
+        }
+
+        function scheduleInterview(candidateId) {
+            openModal(candidateId);
+        }
+        function showScheduledInfo(candidateId) {
+    // Your logic to display scheduled date and time information
+    const candidateElement = document.getElementById(`candidate-${candidateId}`);
+    if (candidateElement) {
+        // Retrieve and display scheduled date and time
+        const scheduledDate = candidateElement.querySelector('.schedule-interview-btn').dataset.scheduledDate;
+        const scheduledTime = candidateElement.querySelector('.schedule-interview-btn').dataset.scheduledTime;
+        alert(`Interview Scheduled:\nDate: ${scheduledDate}\nTime: ${scheduledTime}`);
+    }
+}
+
+        function openModal(candidateId) {
+    const modal = document.getElementById('scheduleInterviewModal');
+    modal.style.display = 'block';
+
+    if (candidateId) {
+        modal.dataset.candidateId = candidateId;
+    }
+}
+
+function closeModal() {
+    document.getElementById('scheduleInterviewModal').style.display = 'none';
+}
+
+document.getElementById('scheduleInterviewForm').addEventListener('submit', function (event) {
+    event.preventDefault();
+    const candidateId = document.getElementById('scheduleInterviewModal').dataset.candidateId;
+    const interviewDate = document.getElementById('interviewDate').value;
+    const interviewTime = document.getElementById('interviewTime').value;
+
+    // Convert the time to 12-hour format
+    const formattedTime = convertTo12HourFormat(interviewTime);
+
+    if (candidateId) {
+        fetch(`/schedule-interview/${candidateId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ interviewDate, interviewTime: formattedTime }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            closeModal();
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+});
+
+function convertTo12HourFormat(time24) {
+    const [hour, minute] = time24.split(':');
+    const period = hour < 12 ? 'AM' : 'PM';
+    const hour12 = hour % 12 || 12; // Convert 0 to 12
+
+    return `${hour12}:${minute} ${period}`;
+}
+    </script>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Candidate Details</title>
+    <!-- Include Bootstrap for basic styling -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Add custom styles here if needed */
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .candidate-details {
+            margin-bottom: 20px;
+        }
+
+        .btn-download {
+            margin-top: 10px;
+        }
+
+        .resume-details {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        {% if candidate %}
+            <div class="candidate-details">
+                <h1>{{ candidate.name }}</h1>
+                <p>Email: {{ candidate.email }}</p>
+                <p>OpenAI Response:</p>
+                <pre>{{ candidate.openai_gpt_response | safe }}</pre>
+
+                <!-- Add more details as needed -->
+
+               
+            </div>
+            <div class="resume-details">
+                <h3>Education:</h3>
+                <ul>
+                    {% for edu in candidate.education %}
+                        <li>{{ edu }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Skills:</h3>
+                <ul>
+                    {% for skill in candidate.skills %}
+                        <li>{{ skill }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Location:</h3>
+                <ul>
+                    {% for loc in candidate.location %}
+                        <li>{{ loc }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Experience:</h3>
+                <ul>
+                    {% for exp in candidate.experience %}
+                        <li>{{ exp }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Contact:</h3>
+                <ul>
+                    {% for contact in candidate.contact %}
+                        <li>{{ contact }}</li>
+                    {% endfor %}
+                </ul>
+
+                <h3>Certification:</h3>
+                <ul>
+                    {% for cert in candidate.certification %}
+                        <li>{{ cert }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% else %}
+            <p class="text-danger">Candidate not found</p>
+        {% endif %}
+        <div class="resume-pdf">
+            <h3>View Resume PDF:</h3>
+            <a href="{{ url_for('view_resume', candidate_id=candidate['_id']) }}" target="_blank">View PDF</a>
+        </div>
+    </div>
+</body>
+</html>

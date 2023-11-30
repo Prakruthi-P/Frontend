@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scheduled Interviews</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 5px;
+        }
+
+        h2 {
+            color: #333;
+        }
+
+        .candidate-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .candidate-item {
+            background-color: #f9f9f9;
+            padding: 10px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .candidate-details {
+            margin-right: auto;
+        }
+
+        .candidate-actions button {
+            margin-left: 10px;
+            padding: 8px 16px;
+            background-color: #4caf50;
+            color: #fff;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+
+        #rescheduleModal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1
+        }
+
+        #rescheduleModal form {
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        #rescheduleModal label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        #rescheduleModal input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+        }
+
+        #rescheduleModal button {
+            background-color: #007bff;
+            color: #fff;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Scheduled Interviews</h2>
+
+        <ul class="candidate-list">
+            {% for candidate in scheduled_candidates %}
+                <li class="candidate-item" id="candidate-{{ candidate['_id'] }}">
+                    <span>{{ candidate['name'] }}</span>
+                    <div class="candidate-details">
+                        <p>Date: {{ candidate['scheduled_interview']['date'] }}</p>
+                        <p>Time: {{ candidate['scheduled_interview']['time'] }}</p>
+                    </div>
+                    <div class="candidate-actions">
+                        <button class="reschedule-btn" data-candidate-id="{{ candidate['_id'] }}">Reschedule</button>
+                        <button class="call-off-btn" data-candidate-id="{{ candidate['_id'] }}">Call Off</button>
+                        <button >Finish</button>
+                    </div>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div id="rescheduleModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeRescheduleForm()">&times;</span>
+            <h3>Schedule Interview</h3>
+            <form id="scheduleInterviewForm">
+                <label for="newDate">New Date:</label>
+                <input type="date" id="newDate" name="newDate" required>
+                <label for="newTime">Interview Time:</label>
+                <input type="time" id="newTime" name="newTime" required>
+                <button type="submit">Schedule</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.reschedule-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const candidateId = button.dataset.candidateId;
+                    openRescheduleForm(candidateId);
+                });
+            });
+
+            document.querySelectorAll('.call-off-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const candidateId = button.dataset.candidateId;
+                    callOffInterview(candidateId);
+                });
+            });
+
+            document.querySelectorAll('.remove-btn').forEach(function (button) {
+                button.addEventListener('click', function () {
+                    const candidateId = button.dataset.candidateId;
+                    removeCandidateFromList(candidateId);
+                });
+            });
+        });
+
+        document.getElementById('rescheduleForm').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const candidateId = document.getElementById('candidateId').value;
+            const newDate = document.getElementById('newDate').value;
+            const newTime = document.getElementById('newTime').value;
+            const formattedTime = convertTo12HourFormat(newTime);
+
+            if (candidateId) {
+                fetch(`/reschedule-interview/${candidateId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ newDate, newTime }),
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    closeRescheduleForm();
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        });
+
+        function openRescheduleForm(candidateId) {
+            const modal = document.getElementById('rescheduleModal');
+            const form = modal.querySelector('form');
+            form.elements['candidateId'].value = candidateId;
+            modal.style.display = 'block';
+        }
+
+        function closeRescheduleForm() {
+            const modal = document.getElementById('rescheduleModal');
+            modal.style.display = 'none';
+        }
+
+        function removeCandidateFromList(candidateId) {
+            const candidateElementId = `candidate-${candidateId}`;
+            const candidateElement = document.getElementById(candidateElementId);
+            if (candidateElement) {
+                candidateElement.remove();
+            }
+        }
+
+        function callOffInterview(candidateId) {
+            const confirmed = confirm('Are you sure you want to call off the interview?');
+            if (confirmed) {
+                fetch(`/call-off-interview/${candidateId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(data.message);
+                    removeCandidateFromList(candidateId);
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,15 @@
+<!-- templates/search_results.html -->
+
+<!-- Display search results dynamically -->
+{% if keyword %}
+    <p>Search Results for "{{ keyword }}":</p>
+    <ul id="searchResults">
+        {% for result in candidates %}
+            <li>
+                <a href="{{ url_for('candidate_details', candidate_id=result['_id']) }}">
+                    {{ result['name'] }}
+                </a>
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
